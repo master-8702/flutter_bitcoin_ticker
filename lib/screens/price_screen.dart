@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cryptocurrency_ticker/models/currency_and_coin_data.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -6,11 +9,53 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String selectedCurrency = "ETB";
+
+  //here we design the android dropdown menu separately to show the currency list
+  // because we have to decide which device the app is running on before showing the
+  // dropdown menu or cupertino picker,
+
+  DropdownButton<String> androidDropDown() {
+    List<DropdownMenuItem<String>> dropDownItems = [];
+
+    for (String curreny in currenciesList) {
+      var newDropDownMenu = DropdownMenuItem(
+        child: Text(curreny),
+        value: curreny,
+      );
+      dropDownItems.add(newDropDownMenu);
+    }
+    return DropdownButton(
+        value: selectedCurrency,
+        items: dropDownItems,
+        onChanged: (value) {
+          setState(() {
+            selectedCurrency = value.toString();
+          });
+        });
+  }
+
+  // we are working on dropdown menus to show the currency lists and
+  // since IOS (apple) doesn't have any dropdown menus we are forced to design
+  // something widget specific to ios and similar to dropdown which is CupertinoPicker
+  CupertinoPicker iosPicker() {
+    List<Text> pickerItems = [];
+    for (String currency in currenciesList) {
+      pickerItems.add(
+        Text(currency),
+      );
+    }
+    return CupertinoPicker(
+        itemExtent: 30,
+        onSelectedItemChanged: (value) {},
+        children: pickerItems);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🤑 Crypto Ticker'),
+        title: const Text('🤑 Crypto Ticker'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,7 +87,7 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: null,
+            child: Platform.isIOS ? iosPicker() : androidDropDown(),
           ),
         ],
       ),
